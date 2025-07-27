@@ -290,19 +290,19 @@
         <div class="tab-buttons">
             <button class="tab-button active" onclick="showTab(1)">
                 <span class="tab-number">1</span>
-                テストがしやすくなる
+                チーム開発がしやすくなる
             </button>
             <button class="tab-button" onclick="showTab(2)">
                 <span class="tab-number">2</span>
-                実装を簡単に切り替えられる
+                依存関係が明確になる
             </button>
             <button class="tab-button" onclick="showTab(3)">
                 <span class="tab-number">3</span>
-                依存関係が明確になる
+                テストがしやすくなる
             </button>
             <button class="tab-button" onclick="showTab(4)">
                 <span class="tab-number">4</span>
-                チーム開発がしやすくなる
+                実装を簡単に切り替えられる
             </button>
             <button class="tab-button" onclick="showTab(5)">
                 <span class="tab-number">5</span>
@@ -311,14 +311,14 @@
         </div>
         
         <!-- メリット1: テストがしやすくなる -->
-        <div class="tab-content active" id="tab1">
+        <div class="tab-content" id="tab1">
             <div class="benefit-title">
                 <span style="font-size: 1.2em;">🧪</span>
                 テストがしやすくなる
             </div>
             <div class="benefit-description">
-                インターフェースを使用することで、テスト時に<span class="highlight">モック（偽物）を簡単に作成</span>することができ、
-                実際のデータベースに接続することなく高速なユニットテストが可能となる。
+                インターフェースを使用することで、<span class="highlight">実装の詳細に依存せずにモックを作成</span>でき、
+                より安定したユニットテストが可能となる。
             </div>
             
             <div class="point-list">
@@ -766,7 +766,7 @@ spring.profiles.active=ldap
         </div>
         
         <!-- メリット4: チーム開発がしやすくなる -->
-        <div class="tab-content" id="tab4">
+        <div class="tab-content active" id="tab4">
             <div class="benefit-title">
                 <span style="font-size: 1.2em;">👥</span>
                 チーム開発がしやすくなる
@@ -1092,6 +1092,16 @@ spring.profiles.active=ldap
     </div>
     
     <script>
+        // タブの表示順序マッピング
+        // ボタンのインデックス -> 実際のコンテンツID
+        const tabMapping = {
+            1: 4,  // チーム開発がしやすくなる
+            2: 3,  // 依存関係が明確になる
+            3: 1,  // テストがしやすくなる
+            4: 2,  // 実装を簡単に切り替えられる
+            5: 5   // 将来の拡張性が高まる
+        };
+        
         function showTab(tabNumber) {
             // すべてのタブボタンとコンテンツを非アクティブにする
             const buttons = document.querySelectorAll('.tab-button');
@@ -1102,7 +1112,7 @@ spring.profiles.active=ldap
             
             // 選択されたタブをアクティブにする
             buttons[tabNumber - 1].classList.add('active');
-            document.getElementById('tab' + tabNumber).classList.add('active');
+            document.getElementById('tab' + tabMapping[tabNumber]).classList.add('active');
         }
     </script>
 </body>
