@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevExplanation - 開発解説集</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 30px;
+        }
+        .guide-list {
+            list-style: none;
+            padding: 0;
+        }
+        .guide-item {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        .guide-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .guide-link {
+            text-decoration: none;
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        .guide-description {
+            color: #4a5568;
+            margin-top: 8px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DevExplanation - 開発解説集</h1>
+        <p>開発に関する様々なトピックを分かりやすく解説したインタラクティブなガイド集です。</p>
+        
+        <ul class="guide-list">
+            <li class="guide-item">
+                <a href="spring-boot-di-interface-pattern.html" class="guide-link">
+                    Spring Boot DI インターフェースパターン
+                    <span class="badge">Spring Boot</span>
+                </a>
+                <div class="guide-description">
+                    Spring BootでServiceクラスをインターフェースと実装クラスに分けることの5つのメリットを、
+                    実際のコード例と共にインタラクティブに解説します。
+                </div>
+            </li>
+        </ul>
+        
+        <footer style="margin-top: 50px; text-align: center; color: #718096;">
+            <p>© 2024 DevExplanation. Created with ❤️ for developers.</p>
+        </footer>
+    </div>
+</body>
+</html>
