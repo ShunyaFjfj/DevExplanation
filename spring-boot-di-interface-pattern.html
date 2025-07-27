@@ -784,30 +784,16 @@ spring.profiles.active=ldap
 <span class="code-keyword">public interface</span> <span class="code-class">PaymentService</span> {
     
     <span class="code-comment">// 決済処理</span>
-    PaymentResult <span class="code-method">processPayment</span>(
-        BigDecimal amount, 
-        PaymentMethod method,
-        String accountInfo
-    );
+    PaymentResult <span class="code-method">processPayment</span>(BigDecimal amount, PaymentMethod method, String accountInfo);
     
     <span class="code-comment">// 返金処理</span>
-    RefundResult <span class="code-method">refund</span>(
-        String transactionId, 
-        BigDecimal amount
-    );
+    RefundResult <span class="code-method">refund</span>(String transactionId, BigDecimal amount);
     
     <span class="code-comment">// 決済履歴の取得</span>
-    List&lt;PaymentHistory&gt; <span class="code-method">getPaymentHistory</span>(
-        Long customerId,
-        LocalDate from,
-        LocalDate to
-    );
+    List&lt;PaymentHistory&gt; <span class="code-method">getPaymentHistory</span>(Long customerId, LocalDate from, LocalDate to);
     
     <span class="code-comment">// 決済方法の検証</span>
-    <span class="code-keyword">boolean</span> <span class="code-method">validatePaymentMethod</span>(
-        PaymentMethod method,
-        String accountInfo
-    );
+    <span class="code-keyword">boolean</span> <span class="code-method">validatePaymentMethod</span>(PaymentMethod method, String accountInfo);
 }</div>
             </div>
             
