@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpringBoot インターフェース分離のメリット</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            margin-top: 10px;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .tab-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            background-color: #f7fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .tab-button:hover {
+            background-color: #edf2f7;
+        }
+        
+        .tab-button.active {
+            color: #667eea;
+            background-color: white;
+        }
+        
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: #667eea;
+        }
+        
+        .tab-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: #e2e8f0;
+            color: #4a5568;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active .tab-number {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .benefit-title {
+            font-size: 2em;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .benefit-description {
+            color: #4a5568;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+        
+        .code-section {
+            margin: 30px 0;
+        }
+        
+        .code-section-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .code-example {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 25px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            white-space: pre;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .code-comment {
+            color: #6a9955;
+        }
+        
+        .code-annotation {
+            color: #c586c0;
+        }
+        
+        .code-keyword {
+            color: #569cd6;
+        }
+        
+        .code-class {
+            color: #4ec9b0;
+        }
+        
+        .code-method {
+            color: #dcdcaa;
+        }
+        
+        .code-string {
+            color: #ce9178;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .comparison-item {
+            padding: 25px;
+            border-radius: 8px;
+            background-color: #f7fafc;
+        }
+        
+        .comparison-item.with-interface {
+            border: 2px solid #48bb78;
+        }
+        
+        .comparison-item.without-interface {
+            border: 2px solid #f56565;
+        }
+        
+        .comparison-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2em;
+        }
+        
+        .icon {
+            font-size: 1.5em;
+        }
+        
+        .highlight {
+            background-color: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .point-list {
+            background-color: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 20px 30px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .point-list li {
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .code-example {
+                font-size: 0.8em;
+                padding: 15px;
+            }
+            
+            .tab-buttons {
+                flex-direction: column;
+            }
+            
+            .tab-button {
+                font-size: 0.9em;
+                padding: 15px 20px;
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .tab-number {
+                width: 25px;
+                height: 25px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>SpringBoot DI設計パターン</h1>
+        <div class="subtitle">Serviceクラスをインターフェースと実装クラスに分けるメリット</div>
+    </div>
+    
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="showTab(1)">
+                <span class="tab-number">1</span>
+                テストがしやすくなる
+            </button>
+            <button class="tab-button" onclick="showTab(2)">
+                <span class="tab-number">2</span>
+                実装を簡単に切り替えられる
+            </button>
+            <button class="tab-button" onclick="showTab(3)">
+                <span class="tab-number">3</span>
+                依存関係が明確になる
+            </button>
+            <button class="tab-button" onclick="showTab(4)">
+                <span class="tab-number">4</span>
+                チーム開発がしやすくなる
+            </button>
+            <button class="tab-button" onclick="showTab(5)">
+                <span class="tab-number">5</span>
+                将来の拡張性が高まる
+            </button>
+        </div>
+        
+        <!-- メリット1: テストがしやすくなる -->
+        <div class="tab-content active" id="tab1">
+            <div class="benefit-title">
+                <span style="font-size: 1.2em;">🧪</span>
+                テストがしやすくなる
+            </div>
+            <div class="benefit-description">
+                インターフェースを使用することで、テスト時に<span class="highlight">モック（偽物）を簡単に作成</span>することができ、
+                実際のデータベースに接続することなく高速なユニットテストが可能となる。
+            </div>
+            
+            <div class="point-list">
+                <h3>インターフェースを使用することによる利点</h3>
+                <ul>
+                    <li><strong>高速なテスト実行</strong> - データベース接続が不要となり、テストが数ミリ秒で完了する</li>
+                    <li><strong>独立したテスト</strong> - 外部システムの状態に依存せず、安定したテストが可能</li>
+                    <li><strong>エラーケースの再現</strong> - 実際のシステムでは再現困難なエラーも簡単にテスト可能</li>
+                </ul>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">📝</span> インターフェースの定義
+                </div>
+                <div class="code-example"><span class="code-keyword">package</span> com.example.service;
+
+<span class="code-keyword">public interface</span> <span class="code-class">UserService</span> {
+    User <span class="code-method">findById</span>(Long id);
+    User <span class="code-method">save</span>(User user);
+    <span class="code-keyword">void</span> <span class="code-method">deleteById</span>(Long id);
+}</div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">🔧</span> 実装クラス
+                </div>
+                <div class="code-example"><span class="code-keyword">package</span> com.example.service.impl;
+
+<span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@Service</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">UserServiceImpl</span> <span class="code-keyword">implements</span> <span class="code-class">UserService</span> {
+    
+    <span class="code-keyword">private final</span> UserRepository userRepository;
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> User <span class="code-method">findById</span>(Long id) {
+        <span class="code-keyword">return</span> userRepository.findById(id)
+            .orElseThrow(() -> <span class="code-keyword">new</span> UserNotFoundException(<span class="code-string">"User not found"</span>));
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> User <span class="code-method">save</span>(User user) {
+        <span class="code-keyword">return</span> userRepository.save(user);
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> <span class="code-method">deleteById</span>(Long id) {
+        userRepository.deleteById(id);
+    }
+}</div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">✅</span> テストコード（Mockitoを使用）
+                </div>
+                <div class="code-example"><span class="code-keyword">package</span> com.example.controller;
+
+<span class="code-keyword">import static</span> org.mockito.Mockito.*;
+<span class="code-keyword">import static</span> org.junit.jupiter.api.Assertions.*;
+
+<span class="code-annotation">@ExtendWith(MockitoExtension.class)</span>
+<span class="code-keyword">class</span> <span class="code-class">UserControllerTest</span> {
+    
+    <span class="code-annotation">@Mock</span>
+    <span class="code-keyword">private</span> UserService userService;  <span class="code-comment">// インターフェースをモック化</span>
+    
+    <span class="code-annotation">@InjectMocks</span>
+    <span class="code-keyword">private</span> UserController userController;
+    
+    <span class="code-annotation">@Test</span>
+    <span class="code-keyword">void</span> <span class="code-method">testGetUser</span>() {
+        <span class="code-comment">// テストデータの準備</span>
+        Long userId = 1L;
+        User mockUser = <span class="code-keyword">new</span> User(userId, <span class="code-string">"テスト太郎"</span>, <span class="code-string">"test@example.com"</span>);
+        
+        <span class="code-comment">// モックの動作を定義（DBアクセスなし）</span>
+        when(userService.findById(userId)).thenReturn(mockUser);
+        
+        <span class="code-comment">// テスト実行</span>
+        ResponseEntity&lt;User&gt; response = userController.getUser(userId);
+        
+        <span class="code-comment">// 検証</span>
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(<span class="code-string">"テスト太郎"</span>, response.getBody().getName());
+        assertEquals(<span class="code-string">"test@example.com"</span>, response.getBody().getEmail());
+        
+        <span class="code-comment">// メソッドが呼ばれたことを確認</span>
+        verify(userService, times(1)).findById(userId);
+    }
+    
+    <span class="code-annotation">@Test</span>
+    <span class="code-keyword">void</span> <span class="code-method">testSaveUser</span>() {
+        <span class="code-comment">// テストデータの準備</span>
+        User newUser = <span class="code-keyword">new</span> User(<span class="code-keyword">null</span>, <span class="code-string">"新規ユーザー"</span>, <span class="code-string">"new@example.com"</span>);
+        User savedUser = <span class="code-keyword">new</span> User(2L, <span class="code-string">"新規ユーザー"</span>, <span class="code-string">"new@example.com"</span>);
+        
+        <span class="code-comment">// モックの動作を定義</span>
+        when(userService.save(any(User.class))).thenReturn(savedUser);
+        
+        <span class="code-comment">// テスト実行</span>
+        ResponseEntity&lt;User&gt; response = userController.createUser(newUser);
+        
+        <span class="code-comment">// 検証</span>
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody().getId());
+        assertEquals(2L, response.getBody().getId());
+    }
+    
+    <span class="code-annotation">@Test</span>
+    <span class="code-keyword">void</span> <span class="code-method">testDeleteUser</span>() {
+        <span class="code-comment">// テストデータの準備</span>
+        Long userId = 1L;
+        
+        <span class="code-comment">// モックの動作を定義（何も返さない）</span>
+        doNothing().when(userService).deleteById(userId);
+        
+        <span class="code-comment">// テスト実行</span>
+        ResponseEntity&lt;Void&gt; response = userController.deleteUser(userId);
+        
+        <span class="code-comment">// 検証</span>
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(userService, times(1)).deleteById(userId);
+    }
+}</div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">🔗</span> Controllerクラス（Serviceインターフェースを利用）
+                </div>
+                <div class="code-example"><span class="code-keyword">package</span> com.example.controller;
+
+<span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping("/api/users")</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">UserController</span> {
+    
+    <span class="code-keyword">private final</span> UserService userService;
+    
+    <span class="code-annotation">@GetMapping("/{id}")</span>
+    <span class="code-keyword">public</span> ResponseEntity&lt;User&gt; <span class="code-method">getUser</span>(<span class="code-annotation">@PathVariable</span> Long id) {
+        User user = userService.findById(id);
+        <span class="code-keyword">return</span> ResponseEntity.ok(user);
+    }
+    
+    <span class="code-annotation">@PostMapping</span>
+    <span class="code-keyword">public</span> ResponseEntity&lt;User&gt; <span class="code-method">createUser</span>(<span class="code-annotation">@RequestBody</span> User user) {
+        User savedUser = userService.save(user);
+        <span class="code-keyword">return</span> ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    }
+    
+    <span class="code-annotation">@DeleteMapping("/{id}")</span>
+    <span class="code-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="code-method">deleteUser</span>(<span class="code-annotation">@PathVariable</span> Long id) {
+        userService.deleteById(id);
+        <span class="code-keyword">return</span> ResponseEntity.noContent().build();
+    }
+}</div>
+            </div>
+        </div>
+        
+        <!-- メリット2: 実装を簡単に切り替えられる -->
+        <div class="tab-content" id="tab2">
+            <div class="benefit-title">
+                <span style="font-size: 1.2em;">🔄</span>
+                実装を簡単に切り替えられる
+            </div>
+            <div class="benefit-description">
+                環境や条件に応じて<span class="highlight">設定ファイルの変更のみで実装を切り替える</span>ことが可能である。
+                コードの変更を行うことなく、データベース認証からLDAP認証への切り替えなどが実現される。
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">📋</span> 認証インターフェース
+                </div>
+                <div class="code-example"><span class="code-keyword">public interface</span> <span class="code-class">AuthService</span> {
+    <span class="code-keyword">boolean</span> <span class="code-method">authenticate</span>(String username, String password);
+    User <span class="code-method">getUserInfo</span>(String username);
+    <span class="code-keyword">void</span> <span class="code-method">logout</span>(String username);
+}</div>
+            </div>
+            
+            <div class="comparison">
+                <div class="comparison-item">
+                    <div class="comparison-title">
+                        <span class="icon">🗄️</span> データベース認証
+                    </div>
+                    <div class="code-example"><span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@Service</span>
+<span class="code-annotation">@Profile("database")</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">DatabaseAuthService</span> 
+    <span class="code-keyword">implements</span> <span class="code-class">AuthService</span> {
+    
+    <span class="code-keyword">private final</span> UserRepository userRepository;
+    <span class="code-keyword">private final</span> PasswordEncoder passwordEncoder;
+    
+    <span class="code-keyword">public boolean</span> <span class="code-method">authenticate</span>(
+        String username, String password) {
+        
+        User user = userRepository
+            .findByUsername(username);
+            
+        <span class="code-keyword">return</span> user != <span class="code-keyword">null</span> && 
+            passwordEncoder.matches(
+                password, 
+                user.getPassword()
+            );
+    }
+}</div>
+                </div>
+                
+                <div class="comparison-item">
+                    <div class="comparison-title">
+                        <span class="icon">🏢</span> LDAP認証
+                    </div>
+                    <div class="code-example"><span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@Service</span>
+<span class="code-annotation">@Profile("ldap")</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">LdapAuthService</span> 
+    <span class="code-keyword">implements</span> <span class="code-class">AuthService</span> {
+    
+    <span class="code-keyword">private final</span> LdapTemplate ldapTemplate;
+    
+    <span class="code-keyword">public boolean</span> <span class="code-method">authenticate</span>(
+        String username, String password) {
+        
+        <span class="code-keyword">try</span> {
+            ldapTemplate.authenticate(
+                LdapQueryBuilder.query()
+                    .where(<span class="code-string">"uid"</span>)
+                    .is(username),
+                password
+            );
+            <span class="code-keyword">return true</span>;
+        } <span class="code-keyword">catch</span> (Exception e) {
+            <span class="code-keyword">return false</span>;
+        }
+    }
+}</div>
+                </div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">⚙️</span> 設定ファイルによる切り替え
+                </div>
+                <div class="code-example"><span class="code-comment"># application-dev.properties (開発環境)</span>
+spring.profiles.active=database
+
+<span class="code-comment"># application-prod.properties (本番環境)</span>
+spring.profiles.active=ldap
+
+<span class="code-comment"># 環境変数での切り替えも可能</span>
+<span class="code-comment"># export SPRING_PROFILES_ACTIVE=ldap</span>
+
+<span class="code-comment"># またはアプリケーション起動時の引数で指定</span>
+<span class="code-comment"># java -jar myapp.jar --spring.profiles.active=ldap</span></div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">💡</span> 利用側のコード（変更不要）
+                </div>
+                <div class="code-example"><span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping("/api/auth")</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">AuthController</span> {
+    
+    <span class="code-keyword">private final</span> AuthService authService;  <span class="code-comment">// インターフェースに依存</span>
+    
+    <span class="code-annotation">@PostMapping("/login")</span>
+    <span class="code-keyword">public</span> ResponseEntity&lt;LoginResponse&gt; <span class="code-method">login</span>(
+        <span class="code-annotation">@RequestBody</span> LoginRequest request) {
+        
+        <span class="code-comment">// 実装がDatabaseかLDAPかを意識する必要がない</span>
+        <span class="code-keyword">boolean</span> authenticated = authService.authenticate(
+            request.getUsername(), 
+            request.getPassword()
+        );
+        
+        <span class="code-keyword">if</span> (authenticated) {
+            <span class="code-keyword">return</span> ResponseEntity.ok(<span class="code-keyword">new</span> LoginResponse(<span class="code-string">"Success"</span>));
+        } <span class="code-keyword">else</span> {
+            <span class="code-keyword">return</span> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(<span class="code-keyword">new</span> LoginResponse(<span class="code-string">"Failed"</span>));
+        }
+    }
+}</div>
+            </div>
+        </div>
+        
+        <!-- メリット3: 依存関係が明確になる -->
+        <div class="tab-content" id="tab3">
+            <div class="benefit-title">
+                <span style="font-size: 1.2em;">🔗</span>
+                依存関係が明確になる
+            </div>
+            <div class="benefit-description">
+                コントローラーは<span class="highlight">「何ができるか」のみを知っていればよく</span>、
+                「どのように実行するか」の詳細を知る必要がない。これにより、疎結合な設計が実現される。
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">📐</span> 依存関係の図解
+                </div>
+                <div style="background-color: #f7fafc; padding: 30px; border-radius: 8px; text-align: center;">
+                    <div style="display: inline-block; text-align: left;">
+                        <div style="background: #667eea; color: white; padding: 15px 30px; border-radius: 8px; margin-bottom: 20px;">
+                            Controller層
+                        </div>
+                        <div style="text-align: center; font-size: 2em; margin-bottom: 20px;">↓</div>
+                        <div style="background: #48bb78; color: white; padding: 15px 30px; border-radius: 8px; margin-bottom: 20px;">
+                            Service Interface（契約）
+                        </div>
+                        <div style="text-align: center; font-size: 2em; margin-bottom: 20px;">↓</div>
+                        <div style="background: #ed8936; color: white; padding: 15px 30px; border-radius: 8px;">
+                            Service Implementation（実装）
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">📝</span> インターフェース（契約）
+                </div>
+                <div class="code-example"><span class="code-keyword">public interface</span> <span class="code-class">OrderService</span> {
+    <span class="code-comment">// 注文の作成</span>
+    Order <span class="code-method">createOrder</span>(OrderRequest request);
+    
+    <span class="code-comment">// 注文の検索</span>
+    Order <span class="code-method">findById</span>(Long orderId);
+    
+    <span class="code-comment">// 注文のキャンセル</span>
+    <span class="code-keyword">void</span> <span class="code-method">cancelOrder</span>(Long orderId);
+    
+    <span class="code-comment">// 注文履歴の取得</span>
+    List&lt;Order&gt; <span class="code-method">getOrderHistory</span>(Long customerId);
+}</div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">🎯</span> Controller（インターフェースのみに依存）
+                </div>
+                <div class="code-example"><span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping("/api/orders")</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">OrderController</span> {
+    
+    <span class="code-keyword">private final</span> OrderService orderService;
+    
+    <span class="code-annotation">@PostMapping</span>
+    <span class="code-keyword">public</span> ResponseEntity&lt;Order&gt; <span class="code-method">createOrder</span>(
+        <span class="code-annotation">@RequestBody</span> OrderRequest request) {
+        
+        <span class="code-comment">// 実装の詳細を知らずに利用可能</span>
+        <span class="code-comment">// - DBアクセスの方法</span>
+        <span class="code-comment">// - 在庫確認のロジック</span>
+        <span class="code-comment">// - 決済処理の詳細</span>
+        <span class="code-comment">// これらすべてが隠蔽されている</span>
+        
+        Order order = orderService.createOrder(request);
+        <span class="code-keyword">return</span> ResponseEntity.status(HttpStatus.CREATED).body(order);
+    }
+    
+    <span class="code-annotation">@GetMapping("/{id}")</span>
+    <span class="code-keyword">public</span> ResponseEntity&lt;Order&gt; <span class="code-method">getOrder</span>(
+        <span class="code-annotation">@PathVariable</span> Long id) {
+        
+        Order order = orderService.findById(id);
+        <span class="code-keyword">return</span> ResponseEntity.ok(order);
+    }
+}</div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">🔧</span> 実装の詳細（Controllerからは見えない）
+                </div>
+                <div class="code-example"><span class="code-annotation">@Service</span>
+<span class="code-annotation">@Transactional</span>
+<span class="code-keyword">public class</span> <span class="code-class">OrderServiceImpl</span> <span class="code-keyword">implements</span> <span class="code-class">OrderService</span> {
+    
+    <span class="code-comment">// 複数の依存関係（Controllerは知る必要がない）</span>
+    <span class="code-keyword">private final</span> OrderRepository orderRepository;
+    <span class="code-keyword">private final</span> InventoryService inventoryService;
+    <span class="code-keyword">private final</span> PaymentService paymentService;
+    <span class="code-keyword">private final</span> NotificationService notificationService;
+    
+    <span class="code-comment">// 複雑な実装ロジック</span>
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> Order <span class="code-method">createOrder</span>(OrderRequest request) {
+        <span class="code-comment">// 1. 在庫確認</span>
+        inventoryService.checkAvailability(request.getItems());
+        
+        <span class="code-comment">// 2. 注文の作成</span>
+        Order order = <span class="code-keyword">new</span> Order();
+        order.setCustomerId(request.getCustomerId());
+        order.setItems(request.getItems());
+        order.setTotalAmount(calculateTotal(request.getItems()));
+        
+        <span class="code-comment">// 3. 決済処理</span>
+        PaymentResult paymentResult = paymentService.processPayment(
+            order.getTotalAmount(), 
+            request.getPaymentInfo()
+        );
+        
+        <span class="code-comment">// 4. 注文の保存</span>
+        order = orderRepository.save(order);
+        
+        <span class="code-comment">// 5. 通知送信</span>
+        notificationService.sendOrderConfirmation(order);
+        
+        <span class="code-keyword">return</span> order;
+    }
+}</div>
+            </div>
+            
+            <div class="point-list">
+                <h3>疎結合設計の利点</h3>
+                <ul>
+                    <li><strong>変更の影響範囲が限定的</strong> - 実装を変更してもControllerへの影響がない</li>
+                    <li><strong>責任の分離</strong> - 各層が自身の責任のみに集中できる</li>
+                    <li><strong>保守性の向上</strong> - コードの理解と修正が容易になる</li>
+                    <li><strong>再利用性</strong> - インターフェースは異なる実装で再利用可能</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- メリット4: チーム開発がしやすくなる -->
+        <div class="tab-content" id="tab4">
+            <div class="benefit-title">
+                <span style="font-size: 1.2em;">👥</span>
+                チーム開発がしやすくなる
+            </div>
+            <div class="benefit-description">
+                インターフェースが定義されていれば、<span class="highlight">実装が完成していなくても並行開発が可能</span>である。
+                チームメンバーが独立して作業することができ、開発効率が大幅に向上する。
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">📋</span> ステップ1: インターフェースの定義（チーム全体で合意）
+                </div>
+                <div class="code-example"><span class="code-comment">// チーム全体で最初に決定する</span>
+<span class="code-keyword">public interface</span> <span class="code-class">PaymentService</span> {
+    
+    <span class="code-comment">// 決済処理</span>
+    PaymentResult <span class="code-method">processPayment</span>(
+        BigDecimal amount, 
+        PaymentMethod method,
+        String accountInfo
+    );
+    
+    <span class="code-comment">// 返金処理</span>
+    RefundResult <span class="code-method">refund</span>(
+        String transactionId, 
+        BigDecimal amount
+    );
+    
+    <span class="code-comment">// 決済履歴の取得</span>
+    List&lt;PaymentHistory&gt; <span class="code-method">getPaymentHistory</span>(
+        Long customerId,
+        LocalDate from,
+        LocalDate to
+    );
+    
+    <span class="code-comment">// 決済方法の検証</span>
+    <span class="code-keyword">boolean</span> <span class="code-method">validatePaymentMethod</span>(
+        PaymentMethod method,
+        String accountInfo
+    );
+}</div>
+            </div>
+            
+            <div class="comparison">
+                <div class="comparison-item">
+                    <div class="comparison-title">
+                        <span class="icon">👨‍💻</span> フロントエンド開発者
+                    </div>
+                    <div class="code-example"><span class="code-comment">// APIの仕様が決まれば開発開始可能</span>
+<span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping("/api/payments")</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">PaymentController</span> {
+    
+    <span class="code-keyword">private final</span> PaymentService paymentService;
+    
+    <span class="code-annotation">@PostMapping("/process")</span>
+    <span class="code-keyword">public</span> ResponseEntity&lt;PaymentResponse&gt; 
+        <span class="code-method">processPayment</span>(
+            <span class="code-annotation">@RequestBody</span> PaymentRequest req) {
+        
+        <span class="code-comment">// 実装がなくても開発可能</span>
+        PaymentResult result = 
+            paymentService.processPayment(
+                req.getAmount(),
+                req.getMethod(),
+                req.getAccountInfo()
+            );
+            
+        <span class="code-keyword">return</span> ResponseEntity.ok(
+            <span class="code-keyword">new</span> PaymentResponse(result)
+        );
+    }
+}</div>
+                </div>
+                
+                <div class="comparison-item">
+                    <div class="comparison-title">
+                        <span class="icon">👩‍💻</span> バックエンド開発者
+                    </div>
+                    <div class="code-example"><span class="code-comment">// 並行して実装を進める</span>
+<span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@Service</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">PaymentServiceImpl</span> 
+    <span class="code-keyword">implements</span> <span class="code-class">PaymentService</span> {
+    
+    <span class="code-keyword">private final</span> PaymentGateway gateway;
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> PaymentResult <span class="code-method">processPayment</span>(
+        BigDecimal amount,
+        PaymentMethod method,
+        String accountInfo) {
+        
+        <span class="code-comment">// 実際の決済処理を実装</span>
+        <span class="code-comment">// 他の開発者の進捗に影響なし</span>
+        <span class="code-keyword">return</span> gateway.charge(
+            amount, method, accountInfo
+        );
+    }
+}</div>
+                </div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">🧪</span> ステップ2: モック実装で開発を継続
+                </div>
+                <div class="code-example"><span class="code-comment">// 本実装が完成するまでの仮実装</span>
+<span class="code-annotation">@Service</span>
+<span class="code-annotation">@Profile("development")</span>
+<span class="code-keyword">public class</span> <span class="code-class">MockPaymentService</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentService</span> {
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> PaymentResult <span class="code-method">processPayment</span>(
+        BigDecimal amount, PaymentMethod method, String accountInfo) {
+        
+        <span class="code-comment">// 開発中は常に成功を返す</span>
+        <span class="code-keyword">return new</span> PaymentResult(
+            <span class="code-string">"MOCK-"</span> + UUID.randomUUID().toString(),
+            PaymentStatus.SUCCESS,
+            <span class="code-string">"開発用のモック決済です"</span>
+        );
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> List&lt;PaymentHistory&gt; <span class="code-method">getPaymentHistory</span>(
+        Long customerId, LocalDate from, LocalDate to) {
+        
+        <span class="code-comment">// テスト用の固定データを返す</span>
+        <span class="code-keyword">return</span> Arrays.asList(
+            <span class="code-keyword">new</span> PaymentHistory(<span class="code-string">"MOCK-001"</span>, BigDecimal.valueOf(1000)),
+            <span class="code-keyword">new</span> PaymentHistory(<span class="code-string">"MOCK-002"</span>, BigDecimal.valueOf(2000))
+        );
+    }
+}</div>
+            </div>
+            
+        </div>
+        
+        <!-- メリット5: 将来の拡張性が高まる -->
+        <div class="tab-content" id="tab5">
+            <div class="benefit-title">
+                <span style="font-size: 1.2em;">🚀</span>
+                将来の拡張性が高まる
+            </div>
+            <div class="benefit-description">
+                新しい実装を追加する際、<span class="highlight">既存のコードを変更することなく機能追加</span>が可能である。
+                Open/Closed原則（拡張に対して開いており、修正に対して閉じている）を実現することができる。
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">📱</span> 初期実装：メール通知のみ
+                </div>
+                <div class="code-example"><span class="code-comment">// 通知サービスのインターフェース</span>
+<span class="code-keyword">public interface</span> <span class="code-class">NotificationService</span> {
+    <span class="code-keyword">void</span> <span class="code-method">notify</span>(String message, Customer customer);
+    NotificationType <span class="code-method">getType</span>();
+    <span class="code-keyword">boolean</span> <span class="code-method">supports</span>(Customer customer);
+}
+
+<span class="code-comment">// 最初の実装：メール通知</span>
+<span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@Service</span>
+<span class="code-annotation">@Primary</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">EmailNotificationService</span> <span class="code-keyword">implements</span> <span class="code-class">NotificationService</span> {
+    
+    <span class="code-keyword">private final</span> EmailSender emailSender;
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> <span class="code-method">notify</span>(String message, Customer customer) {
+        emailSender.send(customer.getEmail(), <span class="code-string">"通知"</span>, message);
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> NotificationType <span class="code-method">getType</span>() {
+        <span class="code-keyword">return</span> NotificationType.EMAIL;
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public boolean</span> <span class="code-method">supports</span>(Customer customer) {
+        <span class="code-keyword">return</span> customer.getEmail() != <span class="code-keyword">null</span>;
+    }
+}</div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">🔔</span> 要件追加1：SMS通知（既存コードの変更不要）
+                </div>
+                <div class="code-example"><span class="code-comment">// 新しい実装を追加するだけ</span>
+<span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@Service</span>
+<span class="code-annotation">@Qualifier("sms")</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">SmsNotificationService</span> <span class="code-keyword">implements</span> <span class="code-class">NotificationService</span> {
+    
+    <span class="code-keyword">private final</span> SmsGateway smsGateway;
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> <span class="code-method">notify</span>(String message, Customer customer) {
+        smsGateway.send(customer.getPhoneNumber(), message);
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> NotificationType <span class="code-method">getType</span>() {
+        <span class="code-keyword">return</span> NotificationType.SMS;
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public boolean</span> <span class="code-method">supports</span>(Customer customer) {
+        <span class="code-keyword">return</span> customer.getPhoneNumber() != <span class="code-keyword">null</span> 
+            && customer.isSmsEnabled();
+    }
+}</div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">💬</span> 要件追加2：LINE通知
+                </div>
+                <div class="code-example"><span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@Service</span>
+<span class="code-annotation">@Qualifier("line")</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">LineNotificationService</span> <span class="code-keyword">implements</span> <span class="code-class">NotificationService</span> {
+    
+    <span class="code-keyword">private final</span> LineMessagingClient lineClient;
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> <span class="code-method">notify</span>(String message, Customer customer) {
+        TextMessage textMessage = <span class="code-keyword">new</span> TextMessage(message);
+        lineClient.pushMessage(
+            <span class="code-keyword">new</span> PushMessage(customer.getLineUserId(), textMessage)
+        );
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> NotificationType <span class="code-method">getType</span>() {
+        <span class="code-keyword">return</span> NotificationType.LINE;
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public boolean</span> <span class="code-method">supports</span>(Customer customer) {
+        <span class="code-keyword">return</span> customer.getLineUserId() != <span class="code-keyword">null</span>;
+    }
+}</div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">🎯</span> 複数の通知方法を統合する実装
+                </div>
+                <div class="code-example"><span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@Service</span>
+<span class="code-annotation">@Primary</span>
+<span class="code-annotation">@Profile("production")</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">MultiChannelNotificationService</span> <span class="code-keyword">implements</span> <span class="code-class">NotificationService</span> {
+    
+    <span class="code-comment">// すべての通知サービスを自動的に注入</span>
+    <span class="code-keyword">private final</span> List&lt;NotificationService&gt; notificationServices;
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> <span class="code-method">notify</span>(String message, Customer customer) {
+        <span class="code-comment">// 顧客の設定に応じて適切な通知方法をすべて実行</span>
+        notificationServices.stream()
+            .filter(service -> !(service <span class="code-keyword">instanceof</span> MultiChannelNotificationService))
+            .filter(service -> service.supports(customer))
+            .forEach(service -> {
+                <span class="code-keyword">try</span> {
+                    service.notify(message, customer);
+                    log.info(<span class="code-string">"通知送信成功: {}"</span>, service.getType());
+                } <span class="code-keyword">catch</span> (Exception e) {
+                    log.error(<span class="code-string">"通知送信失敗: {}"</span>, service.getType(), e);
+                }
+            });
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> NotificationType <span class="code-method">getType</span>() {
+        <span class="code-keyword">return</span> NotificationType.MULTI_CHANNEL;
+    }
+    
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public boolean</span> <span class="code-method">supports</span>(Customer customer) {
+        <span class="code-keyword">return true</span>;  <span class="code-comment">// すべての顧客をサポート</span>
+    }
+}</div>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-section-title">
+                    <span class="icon">💡</span> 利用側のコードは変更不要
+                </div>
+                <div class="code-example"><span class="code-keyword">import</span> lombok.RequiredArgsConstructor;
+
+<span class="code-annotation">@Service</span>
+<span class="code-annotation">@RequiredArgsConstructor</span>
+<span class="code-keyword">public class</span> <span class="code-class">OrderService</span> {
+    
+    <span class="code-keyword">private final</span> NotificationService notificationService;
+    
+    <span class="code-keyword">public void</span> <span class="code-method">processOrder</span>(Order order) {
+        <span class="code-comment">// 注文処理...</span>
+        
+        <span class="code-comment">// 通知サービスの実装が何であっても同じコード</span>
+        <span class="code-comment">// Email → SMS → LINE → MultiChannel と拡張されても変更不要</span>
+        notificationService.notify(
+            <span class="code-string">"ご注文ありがとうございます。注文番号: "</span> + order.getId(),
+            order.getCustomer()
+        );
+    }
+}</div>
+            </div>
+            
+            <div class="point-list">
+                <h3>拡張性による長期的なメリット</h3>
+                <ul>
+                    <li><strong>ビジネス要求への迅速な対応</strong> - 新しい通知チャネルの追加が容易</li>
+                    <li><strong>既存機能の安定性</strong> - 新機能追加時に既存コードを変更しないため、バグのリスクが低い</li>
+                    <li><strong>段階的な移行</strong> - 古い実装から新しい実装への移行を段階的に実施可能</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabNumber) {
+            // すべてのタブボタンとコンテンツを非アクティブにする
+            const buttons = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            buttons.forEach(button => button.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // 選択されたタブをアクティブにする
+            buttons[tabNumber - 1].classList.add('active');
+            document.getElementById('tab' + tabNumber).classList.add('active');
+        }
+    </script>
+</body>
+</html>
